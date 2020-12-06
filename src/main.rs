@@ -27,12 +27,10 @@ struct Game {
 
 impl Game {
     fn render(&mut self, arg: &RenderArgs) {
-        use graphics;
-        
-        let BG_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0]; // white
+        let bg_color: [f32; 4] = [1.0, 1.0, 1.0, 1.0]; // white
 
         self.gl.draw(arg.viewport(), | _c, gl| {
-            graphics::clear(BG_COLOR, gl);
+            graphics::clear(bg_color, gl);
         });
 
         self.snake.render(&mut self.gl, arg);
@@ -42,11 +40,11 @@ impl Game {
     fn update(&mut self) {
 
         let tail = self.snake.body.back().expect("Snake has no body").clone();
-        if(self.food.posX == tail.0.abs() && self.food.posY == tail.1.abs()) {
+        if self.food.pos_x == tail.0.abs() && self.food.pos_y == tail.1.abs() {
             let mut rng = rand::thread_rng();
             let new_food = Food {
-                posX: rng.gen_range(0, 10),
-                posY: rng.gen_range(0, 10) 
+                pos_x: rng.gen_range(0, 10),
+                pos_y: rng.gen_range(0, 10) 
             };
             self.food = new_food;
         }
@@ -78,9 +76,7 @@ struct Snake {
 
 impl Snake {
     fn render(&self, gl: &mut GlGraphics, args: &RenderArgs) {
-        use graphics;
-        
-        let SNAKE_COLOR: [f32; 4] = [0.0, 0.0, 0.0, 1.0]; //black
+        let snake_color: [f32; 4] = [0.0, 0.0, 0.0, 1.0]; //black
 
         let squares : Vec<graphics::types::Rectangle> = self.body
             .iter()
@@ -98,7 +94,7 @@ impl Snake {
             let transform = c.transform;
             squares.into_iter()
                 .for_each(|square| {
-                    graphics::rectangle(SNAKE_COLOR, square, transform, gl);
+                    graphics::rectangle(snake_color, square, transform, gl);
                 });
         });
         
@@ -120,25 +116,23 @@ impl Snake {
 }
 
 struct Food {
-    posX : i32,
-    posY : i32 
+    pos_x : i32,
+    pos_y : i32 
 }
 
 impl Food {
     fn render(&self, gl: &mut GlGraphics, args: &RenderArgs) {
-        use graphics;
-
-        let FOOD_COLOR: [f32; 4] = [0.0, 0.0, 0.0, 1.0]; // black
+        let food_color: [f32; 4] = [1.0, 0.0, 0.0, 1.0]; // red 
 
         let food = graphics::rectangle::square(
-            (self.posX * 20) as f64,
-            (self.posY * 20) as f64,
+            (self.pos_x * 20) as f64,
+            (self.pos_y * 20) as f64,
             20_f64
         );
         gl.draw(args.viewport(), |c, gl| {
             let transform = c.transform;
 
-            graphics::rectangle(FOOD_COLOR, food, transform, gl);
+            graphics::rectangle(food_color, food, transform, gl);
         });
     }
 }
@@ -162,8 +156,8 @@ fn main() {
             dir: Direction::Right
         },
         food: Food {
-            posX: 3,
-            posY: 3
+            pos_x: 3,
+            pos_y: 3
         }
     };
 
@@ -174,7 +168,7 @@ fn main() {
             game.render(&r);
         }
 
-        if let Some(u) = e.update_args() {
+        if let Some(_) = e.update_args() {
             game.update();
         }
 
