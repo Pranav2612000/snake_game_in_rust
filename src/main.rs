@@ -46,6 +46,9 @@ impl Game {
                 pos_x: rng.gen_range(0, 10),
                 pos_y: rng.gen_range(0, 10) 
             };
+            self.snake.body.push_back(
+                (self.food.pos_x, self.food.pos_y)
+            );
             self.food = new_food;
         }
 
