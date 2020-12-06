@@ -12,6 +12,8 @@ use opengl_graphics::{GlGraphics, OpenGL};
 use std::collections::LinkedList;
 use std::iter::FromIterator;
 
+use rand::Rng;
+
 #[derive(Clone, PartialEq)]
 enum Direction {
     Right, Left, Up, Down
@@ -41,7 +43,12 @@ impl Game {
 
         let tail = self.snake.body.back().expect("Snake has no body").clone();
         if(self.food.posX == tail.0.abs() && self.food.posY == tail.1.abs()) {
-            println!("Food eaten");
+            let mut rng = rand::thread_rng();
+            let new_food = Food {
+                posX: rng.gen_range(0, 10),
+                posY: rng.gen_range(0, 10) 
+            };
+            self.food = new_food;
         }
 
         self.snake.update();
