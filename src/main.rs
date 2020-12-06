@@ -20,6 +20,7 @@ enum Direction {
 struct Game {
     gl: GlGraphics,
     snake: Snake,
+    food: Food,
 }
 
 impl Game {
@@ -33,9 +34,16 @@ impl Game {
         });
 
         self.snake.render(&mut self.gl, arg);
+        self.food.render(&mut self.gl, arg);
     }
 
     fn update(&mut self) {
+
+        let tail = self.snake.body.back().expect("Snake has no body").clone();
+        if(self.food.posX == tail.0.abs() && self.food.posY == tail.1.abs()) {
+            println!("Food eaten");
+        }
+
         self.snake.update();
     }
 
@@ -92,15 +100,39 @@ impl Snake {
     fn update(&mut self) {
         let mut new_head = (*self.body.front().expect("Snake has no body")).clone();
         match self.dir {
-            Direction::Left => new_head.0 = (new_head.0 - 1) % 10,
-            Direction::Right => new_head.0 = (new_head.0 + 1) % 10,
-            Direction::Up => new_head.1 = (new_head.1 - 1) % 10,
-            Direction::Down=> new_head.1 = (new_head.1 + 1) % 10,
+            Direction::Left => new_head.0 = ((new_head.0 + 10) - 1) % 10,
+            Direction::Right => new_head.0 = ((new_head.0 + 10) + 1) % 10,
+            Direction::Up => new_head.1 = ((new_head.1 + 10) - 1) % 10,
+            Direction::Down=> new_head.1 = ((new_head.1 + 10) + 1) % 10,
         }
 
         self.body.push_front(new_head);
 
         self.body.pop_back().unwrap();
+    }
+}
+
+struct Food {
+    posX : i32,
+    posY : i32 
+}
+
+impl Food {
+    fn render(&self, gl: &mut GlGraphics, args: &RenderArgs) {
+        use graphics;
+
+        let FOOD_COLOR: [f32; 4] = [0.0, 0.0, 0.0, 1.0]; // black
+
+        let food = graphics::rectangle::square(
+            (self.posX * 20) as f64,
+            (self.posY * 20) as f64,
+            20_f64
+        );
+        gl.draw(args.viewport(), |c, gl| {
+            let transform = c.transform;
+
+            graphics::rectangle(FOOD_COLOR, food, transform, gl);
+        });
     }
 }
     
@@ -122,6 +154,10 @@ fn main() {
             body: LinkedList::from_iter((vec![(0, 0), (0, 1)]).into_iter()),
             dir: Direction::Right
         },
+        food: Food {
+            posX: 3,
+            posY: 3
+        }
     };
 
     /* Add event loop */
